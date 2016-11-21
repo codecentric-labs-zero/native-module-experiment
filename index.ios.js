@@ -9,22 +9,37 @@ import {
   AppRegistry,
   StyleSheet,
   Text,
-  View
+  View,
+  NativeModules,
+  DeviceEventEmitter
 } from 'react-native';
 
+const Gyroscope = NativeModules.Gyroscope
+
 export default class NativeModuleExperiment extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { sensor: {}}
+  }
+
+  componentWillMount() {
+    Gyroscope.start()
+    DeviceEventEmitter.addListener('GRAVITY_SENSOR_CHANGED', event => {
+      this.setState({sensor: event})
+    })
+  }
+
+  componentWillUnmount() {
+    Gyroscope.stop()
+  }
+
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
+        <Text>
+          X: {this.state.sensor.forceX}{'\n'}
+          Y: {this.state.sensor.forceY}{'\n'}
+          Z: {this.state.sensor.forceZ}{'\n'}
         </Text>
       </View>
     );
